@@ -12,7 +12,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger('cse_financial_analysis')
 
-# Import our custom modules
+# Import custom modules
 from rexp_financial_scraper import extract_rexp_financial_data, rexp_urls
 from dipd_financial_scraper import extract_dipd_financial_data, dipd_urls, convert_to_dataframe
 from agents.data_processing_agent import DataProcessingAgent
@@ -45,10 +45,10 @@ def main():
     os.makedirs('output/forecasts', exist_ok=True)
     os.makedirs('output/reports', exist_ok=True)
     
-    # Dictionary to store our data
+    # Dictionary to store financial data
     financial_data = {}
     
-    # Step 1: Data Scraping
+    # Data Scraping
     if args.dashboard_only and os.path.exists('data/processed/combined_data.pkl'):
         # If dashboard-only mode and processed data exists, load it
         financial_data = {
@@ -60,7 +60,7 @@ def main():
     elif not args.skip_scraping:
         print("\nStep 1: Extracting financial data from CSE quarterly reports...")
         try:
-            # Extract DIPD data using the specific scraper
+            # Extract DIPD data 
             dipd_data = extract_dipd_financial_data(dipd_urls)
             dipd_df = convert_to_dataframe("DIPD.N0000", dipd_data)
             
@@ -68,7 +68,7 @@ def main():
             dipd_df.to_csv('data/processed/DIPD.N0000_processed.csv')
             dipd_df.to_pickle('data/processed/DIPD.N0000_processed.pkl')
             
-            # Extract REXP data using the original scraper
+            # Extract REXP data 
             rexp_data = extract_rexp_financial_data(rexp_urls)
             rexp_df = rexp_data.get("REXP.N0000", pd.DataFrame())
             
@@ -90,22 +90,22 @@ def main():
             return
         
         
-    # Step 2: Data Processing
+    # Data Processing
     if not args.skip_processing and not args.dashboard_only:
         print("\nStep 2: Processing financial data...")
         try:
-            # Initialize with model=None since we're not using Gemini or other AI models
+            
             data_processor = DataProcessingAgent(model=None)
             financial_data = data_processor.execute(raw_data=financial_data)
             logger.info("Data processing completed successfully")
         except Exception as e:
             logger.error(f"Error during data processing: {str(e)}")
     
-    # Step 3: Create Dashboard
+    # Create Dashboard
     if not args.no_dashboard:
         print("\nStep 3: Creating financial dashboard...")
         try:
-            # Initialize with model=None
+            #  model=None
             visualizer = VisualizationAgent(model=None)
             dashboard = visualizer.execute(data=financial_data)
             logger.info("Dashboard created successfully")
@@ -115,7 +115,7 @@ def main():
     else:
         dashboard = None
     
-    # Step 4: Profit Forecasting
+    # Profit Forecasting
     if not args.skip_forecasting and not args.dashboard_only:
         print("\nStep 4: Generating profit forecasts...")
         try:
@@ -137,7 +137,7 @@ def main():
         print("Dashboard will be available at http://127.0.0.1:8050/")
         print("Press Ctrl+C to exit")
         
-        # Use the new dashboard.run() method instead of dashboard.run_server()
+        
         dashboard.run(debug=False)
     else:
         print("\nAnalysis complete! Results saved to the 'output' directory.")
